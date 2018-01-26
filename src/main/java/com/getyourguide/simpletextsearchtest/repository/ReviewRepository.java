@@ -15,7 +15,6 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.NumericDocValuesField;
-import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
@@ -23,7 +22,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.MMapDirectory;
-import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -37,8 +35,6 @@ public class ReviewRepository {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Integer TOPDOCS_MAX = 250;
-
-//    private Map<Integer, Review> reviewMap;
 
     private final String indexDir;
     private final String inputDataFile;
@@ -61,16 +57,13 @@ public class ReviewRepository {
     }
 
     public List<String> findMatches(final List<String> searchTerms) {
-//        final String booleanMultiTermQueryString = String.join(" AND ", searchTerms);
         final BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder();
         searchTerms.stream().forEach(st -> {
             queryBuilder.add(new BooleanClause(new TermQuery(new Term("message", st)), BooleanClause.Occur.MUST));
         });
-//        final Query booleanQuery = new QueryParser(booleanMultiTermQueryString, new StandardAnalyzer());
         final Query query = queryBuilder.build();
-//        final List<Document> documentList = indexSearcher.search(query);
-//        TopDocsCollector<?> topDocsCollector = TopScoreDocCollector.
         TopDocs hits = null;
+
         try {
             hits = indexSearcher.search(query, TOPDOCS_MAX);
             return Arrays.asList(hits.scoreDocs).stream().map(sd -> {
@@ -115,7 +108,6 @@ public class ReviewRepository {
             OBJECT_MAPPER.readValue(reviewJSONStr, ReviewSet.class).getReviewList().stream().forEach(
                 review -> {
                     try {
-//                        reviewMap.put(review.getReviewId(), review);
                         indexWriter.addDocument(createSearchDoc(review));
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -132,7 +124,6 @@ public class ReviewRepository {
         Document document = new Document();
         document.add(new NumericDocValuesField("review_id", Long.valueOf(review.getReviewId())));
         document.add(new TextField("message", review.getMessage(), Field.Store.YES));
-        document.add(new SortedDocValuesField("message", new BytesRef(review.getMessage())));
         return document;
     }
 }

@@ -1,4 +1,4 @@
-package com.getyourguide.simpletextsearchtest.service;
+package com.getyourguide.simpletextsearchtest.controller;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +16,7 @@ import com.getyourguide.simpletextsearchtest.repository.ReviewRepository;
 import com.getyourguide.simpletextsearchtest.repository.TupleRepository;
 
 @RestController
-public class SearchService {
+public class SearchController {
 
     @Autowired
     private TupleRepository tupleRepository;
@@ -24,17 +24,17 @@ public class SearchService {
     @Autowired
     private ReviewRepository reviewRepository;
 
-//    @RequestMapping(path = "/s/{searchTerms}", method = RequestMethod.GET)
-//    public ResponseEntity<List<String>> searchForTerms(@PathVariable("searchTerms") final String searchTerms) {
+    @RequestMapping(path = "/sl/{searchTerms}", method = RequestMethod.GET)
+    public ResponseEntity<List<String>> searchForTermsLucene(@PathVariable("searchTerms") final String searchTerms) {
 
-//        final Optional<List<String>> optionalMatchingReviews =
-//            Optional.ofNullable(reviewRepository.findMatches(Arrays.asList(searchTerms.split(" "))));
-//
-//        if (!optionalMatchingReviews.isPresent()) {
-//            return ResponseEntity.notFound().build();
-//        }
-//        return ResponseEntity.ok().body(optionalMatchingReviews.get());
-//    }
+        final Optional<List<String>> optionalMatchingReviews =
+            Optional.ofNullable(reviewRepository.findMatches(Arrays.asList(searchTerms.split(" "))));
+
+        if (!optionalMatchingReviews.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(optionalMatchingReviews.get());
+    }
 
     @RequestMapping(path = "/s/{searchTerms}", method = RequestMethod.GET)
     public ResponseEntity<List<Review>> searchForTerms(@PathVariable("searchTerms") final String searchTerms) {
